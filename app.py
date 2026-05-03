@@ -5,7 +5,7 @@ import base64
 # Configuración principal
 st.set_page_config(page_title="Jornadas Deportivas", layout="wide")
 
-# --- 1. CSS: COLORES, ANIMACIÓN Y SCROLL HORIZONTAL ---
+# --- 1. CSS: COLORES, ANIMACIÓN Y SCROLL HORIZONTAL FUERTE ---
 css = """
 <style>
 /* Colores principales */
@@ -22,14 +22,15 @@ div[data-testid="stButton"] > button {
     font-weight: bold;
     transition: 0.3s;
     width: 100%;
-    padding: 5px; /* Menos relleno para dar espacio al texto */
+    height: auto; /* Permite que el botón se adapte al texto */
+    padding: 10px 5px; 
 }
 
-/* Evitar que las palabras se rompan feo y ajustar tamaño */
+/* Ajuste de texto para los botones */
 div[data-testid="stButton"] > button p {
-    font-size: 14px; 
-    word-break: keep-all; 
-    white-space: normal;
+    font-size: 15px !important; 
+    word-break: normal !important; /* Prohíbe romper las palabras por la mitad */
+    white-space: normal !important;
 }
 
 div[data-testid="stButton"] > button:hover {
@@ -37,16 +38,21 @@ div[data-testid="stButton"] > button:hover {
     color: white;
 }
 
-/* --- TRUCO PARA EL SCROLL HORIZONTAL DE EQUIPOS --- */
-div[data-testid="column"] {
-    flex: 0 0 auto !important;
-    width: 145px !important; /* AMPLIADO de 110px a 145px para nombres largos */
-    text-align: center;
-}
-div[data-testid="stHorizontalBlock"] {
-    overflow-x: auto;
-    flex-wrap: nowrap;
+/* --- TRUCO DEFINITIVO PARA EL SCROLL HORIZONTAL --- */
+/* Forzamos a que el contenedor NO aplaste los elementos y muestre el scroll */
+[data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
     padding-bottom: 15px;
+    -webkit-overflow-scrolling: touch; /* Scroll suave para iPad y celulares */
+}
+
+/* Obligamos a cada columna a tener un ancho mínimo estricto */
+[data-testid="column"] {
+    min-width: 140px !important; 
+    width: 140px !important;
+    flex: 0 0 140px !important; /* Prohíbe que Streamlit encoja la columna */
+    text-align: center;
 }
 
 /* Animación del splash screen */
@@ -71,12 +77,12 @@ div[data-testid="stVerticalBlock"] > div[style*="border"] {
 """
 st.markdown(css, unsafe_allow_html=True)
 
-# --- 2. PANTALLA DE CARGA (SPLASH SCREEN CORREGIDA) ---
+# --- 2. PANTALLA DE CARGA (SPLASH SCREEN) ---
 pantalla_carga = st.empty()
 
 with pantalla_carga.container():
     try:
-        # AQUÍ USAMOS EL LOGO PRINCIPAL A COLOR PARA LA CARGA
+        # Usamos el logo principal a color para la carga
         with open("logo.png", "rb") as f:
             img_data = base64.b64encode(f.read()).decode()
         img_html = f'<img src="data:image/png;base64,{img_data}" class="spin-logo">'
@@ -101,17 +107,19 @@ st.title("🏆 Jornadas Deportivas - Hoy")
 
 # --- SCROLL HORIZONTAL DE EQUIPOS ---
 st.markdown("### Equipos Participantes")
+
+# Lista corregida con "Sígsig Sporting"
 equipos = [
     "San Sebastián", "Dangers", "Estudiantes", "Llactazhungo", 
     "Profesionales", "Sauces", "Siete Estrellas", "Sigsales", 
-    "Sígsig", "Cutchil", "Güel", "San Bartolomé"
+    "Sígsig Sporting", "Cutchil", "Güel", "San Bartolomé"
 ]
 
 cols_equipos = st.columns(len(equipos))
 
 for i, col in enumerate(cols_equipos):
     with col:
-        # AQUÍ USAMOS EL LOGO DE PRUEBA EN BLANCO PARA LOS EQUIPOS
+        # Usamos el logo de prueba en blanco para los equipos
         try:
             st.image("prueba_logo.png", use_container_width=True)
         except:
@@ -145,7 +153,7 @@ st.write("")
 with st.container(border=True):
     st.markdown("#### 🥅 Indor - Masculino")
     st.write("🕒 **18:00** | Sigsales vs. San Bartolomé")
-    st.write("🕒 **19:00** | Siete Estrellas vs. Sígsig")
+    st.write("🕒 **19:00** | Siete Estrellas vs. Sígsig Sporting")
     st.button("Ver más detalles", key="detalles_i_masc")
 
 st.write("")
