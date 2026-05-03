@@ -5,22 +5,19 @@ import base64
 # --- CONFIGURACIÓN PRINCIPAL ---
 st.set_page_config(page_title="Torneo General - Calendario", layout="wide")
 
-# --- CSS: DISEÑO BASADO EN TUS MOCKUPS (image_12, image_13, image_14) ---
+# --- CSS: DISEÑO CORREGIDO ---
 css = """
 <style>
-/* Reset de colores de fondo */
 .stApp { background-color: #f0f2f6; }
+h1, h2, h3 { color: #1a237e !important; } 
+h4 { color: #d32f2f !important; margin-bottom: 2px !important;} 
 
-/* Tipografía y colores base */
-h1, h2, h3 { color: #1a237e !important; } /* Azul oscuro */
-h4 { color: #d32f2f !important; margin-bottom: 2px !important;} /* Rojo */
-
-/* --- CABECERA ESTILO image_12.png --- */
+/* --- CABECERA --- */
 .header-top-bar {
-    background-color: #d32f2f; /* Franja roja superior */
+    background-color: #d32f2f; 
     height: 15px;
     width: 100%;
-    margin-top: -60px; /* Ajuste para Streamlit */
+    margin-top: -60px; 
     margin-bottom: 10px;
 }
 .header-title {
@@ -45,27 +42,33 @@ h4 { color: #d32f2f !important; margin-bottom: 2px !important;} /* Rojo */
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
-    gap: 15px !important;
+    gap: 5px !important;
     padding-bottom: 10px !important;
     -webkit-overflow-scrolling: touch;
 }
-[data-testid="column"] {
-    min-width: 70px !important;
-    max-width: 70px !important;
-    flex: 0 0 70px !important;
+/* Forzamos que las columnas del carrusel sean pequeñas */
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+    min-width: 80px !important;
+    max-width: 80px !important;
+    flex: 0 0 80px !important;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-/* Botones invisibles sobre los logos para hacerlos clickeables */
-.logo-btn button {
+/* Arreglamos los botones negros para que se vea el texto */
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button {
     background-color: transparent !important;
     border: none !important;
     padding: 0 !important;
-    width: 60px !important;
-    height: 60px !important;
+    width: 100% !important;
 }
-.logo-btn button:hover { background-color: rgba(255,255,255,0.2) !important; border-radius: 50%; }
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button p {
+    color: white !important;
+    font-size: 11px !important;
+    white-space: normal !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+}
 
 /* --- BLOQUES DE DÍAS Y TARJETAS --- */
 .dia-titulo {
@@ -74,18 +77,17 @@ h4 { color: #d32f2f !important; margin-bottom: 2px !important;} /* Rojo */
     font-weight: 800;
     margin-top: 20px;
     margin-bottom: 10px;
+    border-bottom: 2px solid #d32f2f;
+    padding-bottom: 5px;
 }
-/* Estilo de la tarjeta blanca con borde azul */
 div[data-testid="stVerticalBlock"] > div[style*="border"] {
     background-color: white !important;
     border: 2px solid #1a237e !important;
     border-radius: 12px !important;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
-    padding: 0 !important; /* Quitamos el padding por defecto para la cabecera azul */
+    padding: 0 !important; 
     overflow: hidden;
 }
-
-/* Cabecera azul dentro de la tarjeta */
 .tarjeta-header {
     background-color: #1a237e;
     color: white;
@@ -95,19 +97,20 @@ div[data-testid="stVerticalBlock"] > div[style*="border"] {
     display: flex;
     align-items: center;
 }
-.tarjeta-content {
-    padding: 15px;
-}
+.tarjeta-content { padding: 15px; }
 
-/* Lista de partidos compacta */
 .partido-fila {
     font-size: 14px;
     color: #333;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
 }
-/* Botón Rojo (Ver más detalles) */
+.partido-info { flex: 1; }
+.partido-marcador { font-weight: bold; color: #1a237e; margin-left: 10px; text-align: right;}
+
 .btn-rojo button {
     background-color: #d32f2f !important;
     color: white !important;
@@ -116,85 +119,94 @@ div[data-testid="stVerticalBlock"] > div[style*="border"] {
     width: 100% !important;
     padding: 8px !important;
     margin-top: 10px !important;
-    box-shadow: 0 2px 4px rgba(211,47,47,0.4) !important;
 }
 .btn-rojo button:hover { background-color: #b71c1c !important; }
 
-/* Botón de retroceso */
 .btn-back button {
     background-color: transparent !important;
     color: #1a237e !important;
     border: none !important;
-    font-size: 18px !important;
+    font-size: 16px !important;
     padding: 0 !important;
-    justify-content: flex-start !important;
+    font-weight: bold !important;
 }
-
-/* Animación de carga */
-.spin-logo { animation: spin 1s linear infinite; width: 120px; display: block; margin: 0 auto; }
-@keyframes spin { 100% { transform: rotate(360deg); } }
 </style>
 """
 st.markdown(css, unsafe_allow_html=True)
 
-# --- BASE DE DATOS FAKE (Simulando partidos y deportes) ---
-equipos = ["San Sebastián", "Dangers", "Estudiantes", "Llactazhungo", "Profesionales", "Sauces", "Siete Estrellas", "Sigsales", "Sígsig Sporting", "Cutchil", "Güel", "San Bartolomé"]
+# --- BASE DE DATOS EXTENDIDA (Lunes, Martes, Miércoles) ---
+equipos = ["San Sebastián", "Dangers", "Estudiantes", "Llactazhungo", "Profesionales", "Sauces", "Siete Estrellas", "Sigsales", "Sígsig", "Cutchil", "Güel", "San Bartolomé"]
 
 datos_torneo = {
-    "Lunes": [
+    "Lunes (Ayer)": [
         {"deporte": "⚽ Fulbito - Sub 12", "partidos": [
-            {"hora": "14:00", "eq1": "Profesionales", "eq2": "San Sebastián", "marcador": "2 - 1", "estado": "Fin"},
-            {"hora": "15:00", "eq1": "Dangers", "eq2": "Cutchil", "marcador": "0 - 3", "estado": "Fin"},
-            {"hora": "16:00", "eq1": "Estudiantes", "eq2": "Atlético", "marcador": "1 - 1", "estado": "Fin"}
+            {"hora": "14:00", "eq1": "Profesionales", "eq2": "San Sebastián", "marcador": "2 - 1"},
+            {"hora": "15:00", "eq1": "Dangers", "eq2": "Cutchil", "marcador": "0 - 3"},
+            {"hora": "16:00", "eq1": "Estudiantes", "eq2": "Atlético", "marcador": "1 - 1"}
         ]},
-        {"deporte": "🏀 Básquetbol - Femenino", "partidos": [
-            {"hora": "18:00", "eq1": "Profesionales", "eq2": "Güel", "marcador": "", "estado": "Pendiente"},
-            {"hora": "19:00", "eq1": "Sauces", "eq2": "Sigsales", "marcador": "", "estado": "Pendiente"}
+        {"deporte": "🏐 Ecuavoley - Masculino", "partidos": [
+            {"hora": "18:00", "eq1": "Sigsales", "eq2": "Sígsig", "marcador": "2 - 0"},
+            {"hora": "19:00", "eq1": "Güel", "eq2": "San Bartolomé", "marcador": "1 - 2"},
+            {"hora": "20:00", "eq1": "Sauces", "eq2": "Llactazhungo", "marcador": "2 - 1"}
         ]}
     ],
-    "Martes": [
-        {"deporte": "⚽ Fulbito - Sub 15", "partidos": [
-            {"hora": "14:00", "eq1": "Llactazhungo", "eq2": "San Bartolomé", "marcador": "", "estado": "Pendiente"},
-            {"hora": "15:00", "eq1": "Sígsig Sporting", "eq2": "Siete Estrellas", "marcador": "", "estado": "Pendiente"}
+    "Martes (Hoy)": [
+        {"deporte": "🥅 Indor - Masculino", "partidos": [
+            {"hora": "14:00", "eq1": "Profesionales", "eq2": "Dangers", "marcador": "5 - 2"},
+            {"hora": "15:00", "eq1": "Cutchil", "eq2": "Estudiantes", "marcador": "Pendiente"},
+            {"hora": "16:00", "eq1": "San Sebastián", "eq2": "Siete Estrellas", "marcador": "Pendiente"}
         ]},
         {"deporte": "♟️ Ajedrez (Categoría Única)", "partidos": [
-            # Evento de un solo día
-            {"hora": "10:00", "eq1": "Coliseo Parroquial", "eq2": "Torneo General", "marcador": "", "estado": "Pendiente"} 
+            {"hora": "10:00", "eq1": "Coliseo Parroquial", "eq2": "", "marcador": "🥇 1er: Profesionales | 🥈 2do: Güel"}
+        ]}
+    ],
+    "Miércoles (Mañana)": [
+        {"deporte": "🏀 Básquetbol - Femenino", "partidos": [
+            {"hora": "18:00", "eq1": "San Bartolomé", "eq2": "Sígsig", "marcador": "Pendiente"},
+            {"hora": "19:00", "eq1": "Sigsales", "eq2": "Sauces", "marcador": "Pendiente"},
+            {"hora": "20:00", "eq1": "Güel", "eq2": "Llactazhungo", "marcador": "Pendiente"}
+        ]},
+        {"deporte": "🚴 Ciclismo (Ruta Libre)", "partidos": [
+            {"hora": "08:00", "eq1": "Parque Central (Salida)", "eq2": "", "marcador": "Pendiente"}
         ]}
     ]
 }
 
-
-# --- CONTROL DE ESTADO DE NAVEGACIÓN ---
+# --- CONTROL DE ESTADOS ---
 if "pantalla_actual" not in st.session_state:
     st.session_state.pantalla_actual = "HOME"
 if "filtro_equipo" not in st.session_state:
     st.session_state.filtro_equipo = None
 if "filtro_deporte" not in st.session_state:
     st.session_state.filtro_deporte = None
-if "cargando" not in st.session_state:
-    st.session_state.cargando = True # Activa la pantalla de carga la primera vez
 
-# --- FUNCIÓN: PANTALLA DE CARGA ---
-if st.session_state.cargando:
-    pantalla_carga = st.empty()
-    with pantalla_carga.container():
-        try:
-            with open("logo.png", "rb") as f:
-                img_data = base64.b64encode(f.read()).decode()
-            st.markdown(f'<div style="height: 60vh; display: flex; flex-direction: column; justify-content: center;"><img src="data:image/png;base64,{img_data}" class="spin-logo"><h3 style="text-align:center; margin-top:20px;">Cargando calendario...</h3></div>', unsafe_allow_html=True)
-        except:
-             st.markdown('<div style="height: 60vh; display: flex; justify-content: center; align-items: center;"><h3>Cargando...</h3></div>', unsafe_allow_html=True)
-    time.sleep(1.5)
-    pantalla_carga.empty()
-    st.session_state.cargando = False
+# --- FUNCIÓN DEL MODAL OSCURO (Calendario Completo) ---
+@st.dialog("📅 Calendario Completo")
+def modal_calendario(deporte_seleccionado):
+    st.markdown(f"<h4 style='text-align:center;'>Todos los partidos de {deporte_seleccionado}</h4>", unsafe_allow_html=True)
+    st.divider()
+    
+    # Buscamos todos los partidos de este deporte en todos los días
+    hay_datos = False
+    for dia, deportes in datos_torneo.items():
+        for dep in deportes:
+            if dep["deporte"] == deporte_seleccionado:
+                hay_datos = True
+                st.markdown(f"**{dia}**")
+                for p in dep["partidos"]:
+                    if "Ajedrez" in deporte_seleccionado or "Ciclismo" in deporte_seleccionado:
+                        st.write(f"🕒 {p['hora']} | 📍 {p['eq1']} | {p['marcador']}")
+                    else:
+                        resultado = p['marcador'] if p['marcador'] != "Pendiente" else "vs."
+                        st.write(f"🕒 {p['hora']} | {p['eq1']} **{resultado}** {p['eq2']}")
+                st.write("") # Espacio
+    
+    if not hay_datos:
+        st.info("No hay más partidos programados para esta categoría.")
 
-
-# --- FUNCIÓN: DIBUJAR CABECERA Y CARRUSEL ---
+# --- DIBUJAR CABECERA ---
 def dibujar_cabecera():
     st.markdown('<div class="header-top-bar"></div>', unsafe_allow_html=True)
-    
-    # Si estamos viendo un equipo en específico, mostramos botón de regresar
     if st.session_state.filtro_equipo:
         st.markdown(f'<div class="header-title">SIGUIENDO A: {st.session_state.filtro_equipo.upper()}</div>', unsafe_allow_html=True)
         col_back, _ = st.columns([1, 5])
@@ -202,92 +214,70 @@ def dibujar_cabecera():
             st.markdown('<div class="btn-back">', unsafe_allow_html=True)
             if st.button("← Ver todo el torneo"):
                 st.session_state.filtro_equipo = None
-                st.session_state.pantalla_actual = "HOME"
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.markdown('<div class="header-title">TORNEO GENERAL - CALENDARIO</div>', unsafe_allow_html=True)
-        
-        # El Carrusel azul solo se muestra si NO hay filtro de equipo
         st.markdown('<div class="carrusel-container">', unsafe_allow_html=True)
         cols = st.columns(len(equipos))
         for i, col in enumerate(cols):
             with col:
-                # Usamos el logo blanco de prueba
                 try:
                     st.image("prueba_logo.png", width=50)
                 except:
                     st.write("🛡️")
-                # Botón transparente para filtrar
-                st.markdown('<div class="logo-btn">', unsafe_allow_html=True)
-                if st.button(" ", key=f"btn_{equipos[i]}"):
+                # AHORA SÍ PASAMOS EL NOMBRE DEL EQUIPO AL BOTÓN
+                if st.button(equipos[i], key=f"btn_{equipos[i]}"):
                     st.session_state.filtro_equipo = equipos[i]
-                    st.session_state.pantalla_actual = "HOME" # Recarga la home pero filtrada
                     st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-
-# --- RENDERIZADO DE PANTALLAS ---
-
+# --- PANTALLA PRINCIPAL (HOME) ---
 if st.session_state.pantalla_actual == "HOME":
     dibujar_cabecera()
     
-    # Recorremos la base de datos por días
     for dia, deportes in datos_torneo.items():
-        # Bandera para saber si hay partidos de ese equipo este día
-        dia_tiene_partidos = False 
-        html_tarjetas = ""
-
-        for deporte_info in deportes:
-            nombre_deporte = deporte_info["deporte"]
-            partidos = deporte_info["partidos"]
+        # Primero filtramos qué deportes tienen partidos hoy (o si el equipo seleccionado juega hoy)
+        deportes_a_mostrar = []
+        for dep in deportes:
+            partidos_filtrados = []
+            for p in dep["partidos"]:
+                # Lógica del filtro de equipo
+                if not st.session_state.filtro_equipo or st.session_state.filtro_equipo in [p["eq1"], p.get("eq2", "")]:
+                    partidos_filtrados.append(p)
             
-            # FILTRO: Si hay un equipo seleccionado, revisamos si juega en este deporte
-            partidos_a_mostrar = []
-            if st.session_state.filtro_equipo:
-                for p in partidos:
-                    if st.session_state.filtro_equipo in [p["eq1"], p["eq2"]]:
-                        partidos_a_mostrar.append(p)
-            else:
-                partidos_a_mostrar = partidos
+            if len(partidos_filtrados) > 0:
+                deportes_a_mostrar.append({"deporte": dep["deporte"], "partidos": partidos_filtrados})
 
-            # Si hay partidos para mostrar, construimos la tarjeta
-            if len(partidos_a_mostrar) > 0:
-                dia_tiene_partidos = True
-                
+        # SOLUCIÓN: Imprimimos el título del DÍA antes de crear las tarjetas
+        if len(deportes_a_mostrar) > 0:
+            st.markdown(f'<div class="dia-titulo">{dia}</div>', unsafe_allow_html=True)
+            
+            for dep in deportes_a_mostrar:
                 with st.container(border=True):
-                    # Cabecera azul de la tarjeta
-                    st.markdown(f'<div class="tarjeta-header">{nombre_deporte}</div>', unsafe_allow_html=True)
-                    
+                    st.markdown(f'<div class="tarjeta-header">{dep["deporte"]}</div>', unsafe_allow_html=True)
                     st.markdown('<div class="tarjeta-content">', unsafe_allow_html=True)
-                    # Lista de partidos
-                    for p in partidos_a_mostrar:
-                        if "Ajedrez" in nombre_deporte:
-                            # Formato especial un solo día
-                            st.markdown(f'<div class="partido-fila">{p["hora"]} | {p["eq1"]}</div>', unsafe_allow_html=True)
-                        else:
-                            # Formato normal equipos
-                            st.markdown(f'<div class="partido-fila">{p["hora"]} | {p["eq1"]} vs. {p["eq2"]}</div>', unsafe_allow_html=True)
                     
-                    # Botón rojo
+                    for p in dep["partidos"]:
+                        if "Ajedrez" in dep["deporte"] or "Ciclismo" in dep["deporte"]:
+                            # Eventos de 1 día (Lugar / Resultado)
+                            st.markdown(f'<div class="partido-fila"><div class="partido-info">{p["hora"]} | {p["eq1"]}</div><div class="partido-marcador" style="color:#d32f2f;">{p["marcador"]}</div></div>', unsafe_allow_html=True)
+                        else:
+                            # Partidos normales con marcador a la derecha
+                            texto_vs = f"{p['eq1']} vs. {p['eq2']}" if p['marcador'] == "Pendiente" else f"{p['eq1']} - {p['eq2']}"
+                            marcador_display = "" if p['marcador'] == "Pendiente" else p['marcador']
+                            st.markdown(f'<div class="partido-fila"><div class="partido-info">{p["hora"]} | {texto_vs}</div><div class="partido-marcador">{marcador_display}</div></div>', unsafe_allow_html=True)
+                    
                     st.markdown('<div class="btn-rojo">', unsafe_allow_html=True)
-                    if st.button("Ver más detalles", key=f"detalle_{dia}_{nombre_deporte}"):
+                    if st.button("Ver más detalles", key=f"det_{dia}_{dep['deporte']}"):
                         st.session_state.pantalla_actual = "DETALLE"
-                        st.session_state.filtro_deporte = nombre_deporte
+                        st.session_state.filtro_deporte = dep["deporte"]
                         st.rerun()
                     st.markdown('</div></div>', unsafe_allow_html=True)
-                st.write("") # Espacio
-        
-        # Solo dibujamos el título del DÍA si hay tarjetas debajo
-        if dia_tiene_partidos:
-            st.markdown(f'<div class="dia-titulo">Día {dia}</div>', unsafe_allow_html=True)
-            # Volvemos a recorrer para dibujar realmente los contenedores de Streamlit debajo del título
-            # (Lo anterior era para verificar si el día no quedaba vacío por el filtro)
+                st.write("") 
 
-
+# --- PANTALLA 2: VISTA DETALLADA ---
 elif st.session_state.pantalla_actual == "DETALLE":
-    # --- PANTALLA 2: VISTA DETALLADA DEL DEPORTE (Estilo Champions) ---
     st.markdown('<div class="header-top-bar"></div>', unsafe_allow_html=True)
     
     col_back, col_title = st.columns([1, 5])
@@ -302,26 +292,25 @@ elif st.session_state.pantalla_actual == "DETALLE":
     
     st.write("")
     
-    # Tarjeta de Resumen (Sección A)
+    # Tarjeta Compacta
     with st.container(border=True):
         st.markdown(f'<div class="tarjeta-header">RESUMEN DE PARTIDOS</div>', unsafe_allow_html=True)
         st.markdown('<div class="tarjeta-content">', unsafe_allow_html=True)
         
-        # Aquí buscaríamos en la BD real los 3 partidos más relevantes
-        st.markdown('<div class="partido-fila" style="justify-content: space-between;"><span>14:00 | Profesionales vs. San Sebastián</span> <span style="font-weight:bold;">2 - 1</span></div>', unsafe_allow_html=True)
-        st.markdown('<div class="partido-fila" style="justify-content: space-between;"><span>15:00 | Dangers vs. Cutchil</span> <span style="font-weight:bold;">0 - 3</span></div>', unsafe_allow_html=True)
-        st.markdown('<div class="partido-fila" style="justify-content: space-between;"><span>16:00 | Estudiantes vs. Atlético</span> <span style="font-weight:bold;">1 - 1</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="partido-fila"><div class="partido-info">14:00 | Profesionales - San Sebastián</div><div class="partido-marcador">2 - 1</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="partido-fila"><div class="partido-info">15:00 | Dangers - Cutchil</div><div class="partido-marcador">0 - 3</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="partido-fila"><div class="partido-info" style="color:gray;">16:00 | Estudiantes vs. Atlético</div><div class="partido-marcador" style="color:gray;">Pendiente</div></div>', unsafe_allow_html=True)
         
+        # EL BOTÓN QUE ACTIVA EL MODAL OSCURO
         st.markdown('<div class="btn-rojo">', unsafe_allow_html=True)
-        if st.button("Ver más partidos", key="modal_partidos"):
-            # Aquí iría la lógica del MODAL OSCURO (En Streamlit usamos st.dialog o st.expander como alternativa)
-            st.info("ℹ️ Al presionar esto, subirá el cuadro negro desde abajo con el calendario completo.")
+        if st.button("Ver más partidos", key="abrir_modal"):
+            modal_calendario(st.session_state.filtro_deporte) # Llama a la función del modal
         st.markdown('</div></div>', unsafe_allow_html=True)
 
     st.write("")
     
-    # Tarjetas de Posiciones (Sección C)
-    if "Ajedrez" not in st.session_state.filtro_deporte:
+    # Tabla de Posiciones
+    if "Ajedrez" not in st.session_state.filtro_deporte and "Ciclismo" not in st.session_state.filtro_deporte:
         with st.container(border=True):
             st.markdown(f'<div class="tarjeta-header" style="background-color:#e0e0e0; color:#333;">Grupo A</div>', unsafe_allow_html=True)
             st.markdown('<div class="tarjeta-content">', unsafe_allow_html=True)
