@@ -5,7 +5,7 @@ import base64
 # Configuración principal
 st.set_page_config(page_title="Jornadas Deportivas", layout="wide")
 
-# --- 1. CSS: CARRUSEL UNIFICADO PARA TODOS LOS DISPOSITIVOS ---
+# --- 1. CSS: CARRUSEL HORIZONTAL OBLIGATORIO PARA TODA PANTALLA ---
 css = """
 <style>
 /* Colores principales */
@@ -13,64 +13,68 @@ h1, h2, h3 { color: #1a237e; }
 h4 { color: #d32f2f; margin-bottom: 5px; } 
 hr { border-top: 3px solid #d32f2f; }
 
-/* --- CARRUSEL MANUAL (IGNORA LAS COLUMNAS DE STREAMLIT) --- */
-.carrusel-equipos {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 10px; /* ESTE ES EL ESPACIO FIJO ENTRE LOGOS PARA TODAS LAS PANTALLAS */
-    padding-bottom: 15px;
-    -webkit-overflow-scrolling: touch; /* Scroll suave en móviles */
-    align-items: flex-end; /* Alinea por abajo por si hay nombres largos */
+/* --- ORDEN ESTRICTA A STREAMLIT: NO APILES LAS COLUMNAS --- */
+div[data-testid="stHorizontalBlock"] {
+    flex-direction: row !important; /* Fuerza la fila horizontal en celulares */
+    flex-wrap: nowrap !important;   /* Prohíbe que salten a la siguiente línea */
+    overflow-x: auto !important;    /* Activa la barra de desplazamiento lateral */
+    overflow-y: hidden !important;
+    gap: 8px !important;            /* ESPACIO PEQUEÑO Y FIJO ENTRE LOGOS */
+    padding-bottom: 15px !important;
+    -webkit-overflow-scrolling: touch; /* Deslizamiento suave en pantallas táctiles */
+    align-items: flex-end !important;
 }
 
-/* Tarjeta individual de cada equipo en el carrusel */
-.equipo-card {
+/* --- TAMAÑO FIJO Y COMPACTO PARA CADA EQUIPO --- */
+div[data-testid="column"] {
+    min-width: 85px !important; /* Ancho idéntico para PC y celular */
+    max-width: 85px !important;
+    flex: 0 0 85px !important;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    min-width: 80px; /* Ancho fijo de la tarjeta */
-    width: 80px;
+    align-items: center; 
+    padding: 0 !important; /* Quita márgenes invisibles */
 }
 
-/* El logo dentro del carrusel */
-.equipo-logo {
-    width: 70px; /* Tamaño del escudo */
-    height: auto;
+/* Centrar la imagen obligatoriamente */
+div[data-testid="stImage"] {
+    display: flex;
+    justify-content: center;
     margin-bottom: 5px;
 }
 
-/* El botón debajo del logo */
-.equipo-card .stButton > button {
+/* Ajuste compacto para los botones del carrusel */
+div[data-testid="stButton"] {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+div[data-testid="stButton"] > button {
     background-color: #1a237e;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px !important;
     font-weight: bold;
     width: 100%;
-    padding: 6px 2px;
+    padding: 4px 2px !important; /* Relleno mínimo */
 }
-.equipo-card .stButton > button:hover {
+div[data-testid="stButton"] > button:hover {
     background-color: #d32f2f;
 }
-.equipo-card .stButton > button p {
-    font-size: 12px !important; 
+div[data-testid="stButton"] > button p {
+    font-size: 11px !important; /* Letra pequeña para que entre en el botón */
     text-align: center !important; 
-    word-break: normal !important; 
+    word-break: keep-all !important; 
     white-space: normal !important;
     line-height: 1.1 !important; 
     margin: 0 auto; 
 }
 
-/* Botones de las tarjetas de partidos (mantienen su tamaño normal) */
-div[data-testid="stVerticalBlock"] .stButton > button {
-    background-color: #1a237e;
-    color: white;
-    border-radius: 8px;
-    transition: 0.3s;
-}
-div[data-testid="stVerticalBlock"] .stButton > button:hover {
-    background-color: #d32f2f;
+/* Botones grandes para las tarjetas de los partidos */
+div[data-testid="stVerticalBlock"] > div[style*="border"] .stButton > button {
+    padding: 8px !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
 }
 
 /* Animación del splash screen */
@@ -85,7 +89,7 @@ div[data-testid="stVerticalBlock"] .stButton > button:hover {
     100% { transform: rotate(360deg); }
 }
 
-/* Ajuste de las tarjetas de partidos */
+/* Ajuste visual de las tarjetas de partidos */
 div[data-testid="stVerticalBlock"] > div[style*="border"] {
     border-left: 5px solid #1a237e !important;
     border-radius: 10px;
@@ -121,7 +125,6 @@ pantalla_carga.empty()
 # --- 3. PÁGINA PRINCIPAL ---
 st.title("🏆 Jornadas Deportivas - Hoy")
 
-# --- SCROLL HORIZONTAL DE EQUIPOS (NUEVO MÉTODO) ---
 st.markdown("### Equipos Participantes")
 
 equipos = [
@@ -130,33 +133,19 @@ equipos = [
     "Sígsig Sporting", "Cutchil", "Güel", "San Bartolomé"
 ]
 
-# Convertimos el logo de prueba a base64 para poder meterlo en nuestro carrusel HTML
-try:
-    with open("prueba_logo.png", "rb") as f:
-        prueba_logo_data = base64.b64encode(f.read()).decode()
-    img_src = f"data:image/png;base64,{prueba_logo_data}"
-except:
-    img_src = "" # Si no encuentra la imagen, quedará en blanco
-
-# Abrimos el contenedor del carrusel
-st.markdown('<div class="carrusel-equipos">', unsafe_allow_html=True)
-
-# Creamos las columnas dentro del carrusel una por una
+# Creamos las columnas nativas de Streamlit
 cols_equipos = st.columns(len(equipos))
 
+# Llenamos cada columna
 for i, col in enumerate(cols_equipos):
     with col:
-        # Metemos todo en una tarjeta "equipo-card" para que el CSS la controle
-        st.markdown(f'''
-            <div class="equipo-card">
-                <img src="{img_src}" class="equipo-logo" alt="logo">
-            </div>
-        ''', unsafe_allow_html=True)
-        # El botón de Streamlit sigue funcionando normal para los clics
+        # Fijamos un tamaño de logo seguro para que no crezca locamente
+        try:
+            st.image("prueba_logo.png", width=60) 
+        except:
+            st.write("🖼️")
+            
         st.button(equipos[i], key=f"btn_eq_{i}")
-
-# Cerramos el contenedor del carrusel
-st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 
