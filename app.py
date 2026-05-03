@@ -5,38 +5,44 @@ import base64
 # --- CONFIGURACIÓN PRINCIPAL ---
 st.set_page_config(page_title="Torneo General - Calendario", layout="wide")
 
-# --- CSS: DISEÑO CORREGIDO (SOMBRAS, COLORES Y MODAL) ---
+# --- CSS: DISEÑO DARK MODE DEPORTIVO ---
 css = """
 <style>
-.stApp { background-color: #f0f2f6; }
-h1, h2, h3 { color: #1a237e !important; } 
-h4 { color: #d32f2f !important; margin-bottom: 2px !important;} 
+/* Fondo general de la aplicación (Azul Marino Profundo) */
+.stApp { background-color: #0f172a; }
 
-/* --- CABECERA --- */
+/* Forzar colores de texto globales a claro para el modo oscuro */
+h1, h2, h3, h4, p, span, div { color: #f8fafc; } 
+h1, h2, h3 { font-weight: 800 !important; }
+
+/* --- CABECERA SUPERIOR ROJA --- */
 .header-top-bar {
-    background-color: #d32f2f; 
-    height: 15px;
+    background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 100%);
+    border-bottom: 2px solid #ef4444;
+    height: 60px;
     width: 100%;
     margin-top: -60px; 
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 .header-title {
     text-align: center;
-    color: #1a237e;
+    color: #ffffff;
     font-weight: 800;
-    font-size: 14px;
+    font-size: 18px;
     letter-spacing: 1px;
-    margin-bottom: 10px;
 }
 
 /* --- CARRUSEL DE EQUIPOS --- */
 .carrusel-container {
-    background-color: #1a237e;
+    background-color: #1e293b; /* Gris azulado oscuro */
     border-radius: 12px;
-    border: 3px solid #d32f2f;
+    border: 1px solid #334155;
     padding: 15px 5px 5px 5px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important; /* SOMBRA AÑADIDA */
 }
 [data-testid="stHorizontalBlock"] {
     flex-direction: row !important;
@@ -62,88 +68,92 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button {
     width: 100% !important;
 }
 div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button p {
-    color: white !important;
+    color: #cbd5e1 !important;
     font-size: 11px !important;
     white-space: normal !important;
     line-height: 1.1 !important;
     text-align: center !important;
 }
 
-/* --- BLOQUES DE DÍAS Y TARJETAS (CON ELEVACIÓN) --- */
+/* --- BLOQUES DE DÍAS Y TARJETAS --- */
 .dia-titulo {
-    color: #1a237e;
-    font-size: 28px;
+    color: #ffffff;
+    font-size: 26px;
     font-weight: 800;
     margin-top: 20px;
-    margin-bottom: 10px;
-    border-bottom: 2px solid #d32f2f;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #ef4444;
     padding-bottom: 5px;
 }
+
+/* El cuerpo de la tarjeta: Azul royal con borde celeste */
 div[data-testid="stVerticalBlock"] > div[style*="border"] {
-    background-color: white !important;
-    border: 2px solid #1a237e !important;
+    background-color: #1e3a8a !important; 
+    border: 2px solid #38bdf8 !important; 
     border-radius: 12px !important;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important; /* SOMBRA PARA ELEVACIÓN */
+    box-shadow: 0 6px 15px rgba(56, 189, 248, 0.2) !important; 
     padding: 0 !important; 
     overflow: hidden;
 }
+
+/* Cabecera ROJA para "PARTIDOS" o nombre del deporte */
 .tarjeta-header {
-    background-color: #1a237e;
-    color: white;
+    background: linear-gradient(180deg, #b91c1c 0%, #991b1b 100%);
+    color: #ffffff;
     padding: 10px 15px;
     font-weight: bold;
     font-size: 16px;
     display: flex;
     align-items: center;
+    border-bottom: 1px solid #f87171;
 }
 .tarjeta-content { padding: 15px; }
 
 /* Lista de partidos compacta en HOME */
 .partido-fila {
     font-size: 14px;
-    color: #333;
+    color: #f1f5f9;
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
+    border-bottom: 1px solid #3b82f6; 
+    padding-bottom: 8px;
 }
-.partido-info { flex: 1; color: #333; }
-.partido-marcador { font-weight: bold; color: #1a237e; margin-left: 10px; text-align: right;}
+.partido-info { flex: 1; color: #f8fafc; }
+.partido-marcador { font-weight: bold; color: #bae6fd; margin-left: 10px; text-align: right;}
 
+/* Botón Rojo (Ver más detalles) con relieve */
 .btn-rojo button {
-    background-color: #d32f2f !important;
+    background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%) !important;
+    border: 1px solid #f87171 !important;
     color: white !important;
     border-radius: 20px !important;
     font-weight: bold !important;
     width: 100% !important;
-    padding: 8px !important;
+    padding: 10px !important;
     margin-top: 10px !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
 }
-.btn-rojo button:hover { background-color: #1a237e !important; }
+.btn-rojo button:hover { background: #7f1d1d !important; }
 
-/* Flecha de volver más visible */
+/* Flecha de volver */
 .btn-back button {
     background-color: transparent !important;
-    color: #1a237e !important;
+    color: #ffffff !important;
     border: none !important;
-    font-size: 16px !important;
-    padding: 0 !important;
+    font-size: 20px !important;
+    padding: 0 15px !important;
     font-weight: 900 !important;
 }
 
-/* OCULTAR TÍTULO DEL CUADRO MODAL (ST.DIALOG) */
-div[data-testid="stDialog"] header {
-    display: none !important;
-}
-div[data-testid="stDialog"] {
-    padding-top: 20px !important;
-}
+/* Modal oscuro puro */
+div[data-testid="stDialog"] header { display: none !important; }
+div[data-testid="stDialog"] { padding-top: 20px !important; background-color: #0f172a !important; }
 </style>
 """
 st.markdown(css, unsafe_allow_html=True)
 
-# --- BASE DE DATOS EXTENDIDA (Fulbito todos los días) ---
+# --- BASE DE DATOS CORREGIDA (Sin categorías extra) ---
 equipos = ["San Sebastián", "Dangers", "Estudiantes", "Llactazhungo", "Profesionales", "Sauces", "Siete Estrellas", "Sigsales", "Sígsig", "Cutchil", "Güel", "San Bartolomé"]
 
 datos_torneo = {
@@ -174,7 +184,8 @@ datos_torneo = {
     ],
     "Miércoles (Mañana)": [
         {"deporte": "⚽ Fulbito - Sub 12", "partidos": [
-            {"hora": "09:00", "eq1": "Sauces", "eq2": "Güel", "marcador": "Pendiente"}
+            {"hora": "09:00", "eq1": "Sauces", "eq2": "Güel", "marcador": "Pendiente"},
+            {"hora": "10:00", "eq1": "Profesionales", "eq2": "Sigsales", "marcador": "Pendiente"}
         ]},
         {"deporte": "🏀 Básquetbol - Femenino", "partidos": [
             {"hora": "18:00", "eq1": "San Bartolomé", "eq2": "Sígsig", "marcador": "Pendiente"},
@@ -194,25 +205,21 @@ if "filtro_equipo" not in st.session_state:
 if "filtro_deporte" not in st.session_state:
     st.session_state.filtro_deporte = None
 
-# --- FUNCIÓN DEL MODAL OSCURO (ESTILO CHAMPIONS LEAGUE) ---
-# Usamos width="large" para que ocupe casi toda la pantalla
+# --- FUNCIÓN DEL MODAL OSCURO ---
 @st.dialog(" ", width="large")
 def modal_calendario(deporte_seleccionado):
-    # Ya no hay título, directo a los partidos
     hay_datos = False
     for dia, deportes in datos_torneo.items():
         for dep in deportes:
             if dep["deporte"] == deporte_seleccionado:
                 hay_datos = True
                 
-                # Etiqueta del Día/Fase
-                st.markdown(f"<div style='font-size:14px; font-weight:bold; color:#666; margin-top:15px; margin-bottom:5px;'>{dia}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-size:14px; font-weight:bold; color:#94a3b8; margin-top:15px; margin-bottom:5px;'>{dia}</div>", unsafe_allow_html=True)
                 
                 for p in dep["partidos"]:
                     if "Ajedrez" in deporte_seleccionado or "Ciclismo" in deporte_seleccionado:
-                        st.markdown(f"<div style='padding:10px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px;'>🕒 {p['hora']} | 📍 {p['eq1']} <br> <span style='color:#d32f2f; font-weight:bold;'>{p['marcador']}</span></div>", unsafe_allow_html=True)
+                        st.markdown(f"<div style='padding:10px; border:1px solid #334155; border-radius:8px; margin-bottom:10px; background-color: #1e293b;'><span style='color: #f8fafc;'>🕒 {p['hora']} | 📍 {p['eq1']}</span> <br> <span style='color:#ef4444; font-weight:bold;'>{p['marcador']}</span></div>", unsafe_allow_html=True)
                     else:
-                        # Extraer marcadores si los hay
                         m1, m2 = ("-", "-")
                         estado = "Pendiente"
                         if p['marcador'] != "Pendiente":
@@ -221,23 +228,20 @@ def modal_calendario(deporte_seleccionado):
                             if len(partes) == 2:
                                 m1, m2 = partes[0].strip(), partes[1].strip()
                         
-                        # --- DISEÑO IDÉNTICO A IMAGE_14 (CHAMPIONS LEAGUE) ---
                         html_partido = f"""
-                        <div style="display: flex; align-items: center; padding: 12px 15px; background-color: white; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                            <!-- Lado Izquierdo: Equipos y Marcador -->
+                        <div style="display: flex; align-items: center; padding: 12px 15px; background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
                             <div style="flex: 2; display: flex; flex-direction: column;">
                                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                     <span style="font-weight: bold; color: #1a237e;">🛡️ {p['eq1']}</span>
-                                     <span style="font-weight: 900; font-size: 16px; color: #333; margin-right: 15px;">{m1}</span>
+                                     <span style="font-weight: bold; color: #f8fafc;">🛡️ {p['eq1']}</span>
+                                     <span style="font-weight: 900; font-size: 16px; color: #ffffff; margin-right: 15px;">{m1}</span>
                                  </div>
                                  <div style="display: flex; justify-content: space-between;">
-                                     <span style="font-weight: bold; color: #1a237e;">🛡️ {p['eq2']}</span>
-                                     <span style="font-weight: 900; font-size: 16px; color: #333; margin-right: 15px;">{m2}</span>
+                                     <span style="font-weight: bold; color: #f8fafc;">🛡️ {p['eq2']}</span>
+                                     <span style="font-weight: 900; font-size: 16px; color: #ffffff; margin-right: 15px;">{m2}</span>
                                  </div>
                             </div>
-                            <!-- Lado Derecho: Rayita vertical (border-left), Estado y Hora -->
-                            <div style="flex: 1; border-left: 1px solid #ccc; padding-left: 15px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; font-size: 12px; color: #666;">
-                                <div style="font-weight: bold; color: {'#333' if estado == 'Fin' else '#d32f2f'};">{estado}</div>
+                            <div style="flex: 1; border-left: 1px solid #475569; padding-left: 15px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; font-size: 12px; color: #cbd5e1;">
+                                <div style="font-weight: bold; color: {'#94a3b8' if estado == 'Fin' else '#ef4444'};">{estado}</div>
                                 <div>{p['hora']}</div>
                             </div>
                         </div>
@@ -249,30 +253,41 @@ def modal_calendario(deporte_seleccionado):
 
 # --- DIBUJAR CABECERA ---
 def dibujar_cabecera():
-    st.markdown('<div class="header-top-bar"></div>', unsafe_allow_html=True)
-    if st.session_state.filtro_equipo:
-        st.markdown(f'<div class="header-title">SIGUIENDO A: {st.session_state.filtro_equipo.upper()}</div>', unsafe_allow_html=True)
-        col_back, _ = st.columns([1, 5])
-        with col_back:
-            st.markdown('<div class="btn-back">', unsafe_allow_html=True)
-            if st.button("← Ver todo"):
-                st.session_state.filtro_equipo = None
-                st.rerun()
+    if st.session_state.pantalla_actual == "HOME":
+        st.markdown('<div class="header-top-bar"><div class="header-title">TORNEO GENERAL - CALENDARIO</div></div>', unsafe_allow_html=True)
+        
+        if st.session_state.filtro_equipo:
+            col_back, _ = st.columns([1, 5])
+            with col_back:
+                st.markdown('<div class="btn-back">', unsafe_allow_html=True)
+                if st.button("← Ver todo"):
+                    st.session_state.filtro_equipo = None
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align:center; color:#38bdf8; font-weight:bold; margin-bottom: 20px;">SIGUIENDO A: {st.session_state.filtro_equipo.upper()}</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="carrusel-container">', unsafe_allow_html=True)
+            cols = st.columns(len(equipos))
+            for i, col in enumerate(cols):
+                with col:
+                    try:
+                        st.image("prueba_logo.png", width=50)
+                    except:
+                        st.write("🛡️")
+                    if st.button(equipos[i], key=f"btn_{equipos[i]}"):
+                        st.session_state.filtro_equipo = equipos[i]
+                        st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
     else:
-        st.markdown('<div class="header-title">TORNEO GENERAL - CALENDARIO</div>', unsafe_allow_html=True)
-        st.markdown('<div class="carrusel-container">', unsafe_allow_html=True)
-        cols = st.columns(len(equipos))
-        for i, col in enumerate(cols):
-            with col:
-                try:
-                    st.image("prueba_logo.png", width=50)
-                except:
-                    st.write("🛡️")
-                if st.button(equipos[i], key=f"btn_{equipos[i]}"):
-                    st.session_state.filtro_equipo = equipos[i]
-                    st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        col_back, col_title = st.columns([1, 8])
+        with col_back:
+            st.markdown('<div class="header-top-bar" style="justify-content:flex-start; padding-left:10px;"><div class="btn-back">', unsafe_allow_html=True)
+            if st.button("←", key="back_from_detail"):
+                st.session_state.pantalla_actual = "HOME"
+                st.rerun()
+            st.markdown('</div></div>', unsafe_allow_html=True)
+        with col_title:
+            st.markdown(f'<div class="header-top-bar" style="justify-content:flex-start;"><div class="header-title">{st.session_state.filtro_deporte}</div></div>', unsafe_allow_html=True)
 
 # --- PANTALLA PRINCIPAL (HOME) ---
 if st.session_state.pantalla_actual == "HOME":
@@ -298,7 +313,7 @@ if st.session_state.pantalla_actual == "HOME":
                     
                     for p in dep["partidos"]:
                         if "Ajedrez" in dep["deporte"] or "Ciclismo" in dep["deporte"]:
-                            st.markdown(f'<div class="partido-fila"><div class="partido-info">{p["hora"]} | {p["eq1"]}</div><div class="partido-marcador" style="color:#d32f2f;">{p["marcador"]}</div></div>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="partido-fila"><div class="partido-info">{p["hora"]} | {p["eq1"]}</div><div class="partido-marcador" style="color:#ef4444;">{p["marcador"]}</div></div>', unsafe_allow_html=True)
                         else:
                             texto_vs = f"{p['eq1']} vs. {p['eq2']}" if p['marcador'] == "Pendiente" else f"{p['eq1']} - {p['eq2']}"
                             marcador_display = "" if p['marcador'] == "Pendiente" else p['marcador']
@@ -314,28 +329,16 @@ if st.session_state.pantalla_actual == "HOME":
 
 # --- PANTALLA 2: VISTA DETALLADA ---
 elif st.session_state.pantalla_actual == "DETALLE":
-    st.markdown('<div class="header-top-bar"></div>', unsafe_allow_html=True)
-    
-    col_back, col_title = st.columns([1, 5])
-    with col_back:
-        st.markdown('<div class="btn-back">', unsafe_allow_html=True)
-        if st.button("← Volver"):
-            st.session_state.pantalla_actual = "HOME"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-    with col_title:
-        st.markdown(f'<h3 style="margin:0; padding-top:5px;">{st.session_state.filtro_deporte}</h3>', unsafe_allow_html=True)
-    
+    dibujar_cabecera()
     st.write("")
     
-    # Tarjeta Compacta (PARTIDOS)
     with st.container(border=True):
         st.markdown(f'<div class="tarjeta-header">PARTIDOS</div>', unsafe_allow_html=True)
         st.markdown('<div class="tarjeta-content">', unsafe_allow_html=True)
         
         st.markdown('<div class="partido-fila"><div class="partido-info">14:00 | Profesionales - San Sebastián</div><div class="partido-marcador">2 - 1</div></div>', unsafe_allow_html=True)
         st.markdown('<div class="partido-fila"><div class="partido-info">15:00 | Dangers - Cutchil</div><div class="partido-marcador">0 - 3</div></div>', unsafe_allow_html=True)
-        st.markdown('<div class="partido-fila"><div class="partido-info" style="color:gray;">16:00 | Estudiantes vs. Atlético</div><div class="partido-marcador" style="color:gray;">Pendiente</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="partido-fila"><div class="partido-info" style="color:#94a3b8;">16:00 | Estudiantes vs. Atlético</div><div class="partido-marcador" style="color:#94a3b8;">Pendiente</div></div>', unsafe_allow_html=True)
         
         st.markdown('<div class="btn-rojo">', unsafe_allow_html=True)
         if st.button("Ver más partidos", key="abrir_modal"):
@@ -344,40 +347,30 @@ elif st.session_state.pantalla_actual == "DETALLE":
 
     st.write("")
     
-    # --- TABLAS DE POSICIONES (3 GRUPOS x 4 CLUBES CON COLORES CORREGIDOS) ---
     def dibujar_grupo(nombre_grupo, equipos_grupo):
         with st.container(border=True):
-            st.markdown(f'<div class="tarjeta-header" style="background-color:#e0e0e0; color:#1a237e; border-bottom: 2px solid #ccc;">{nombre_grupo}</div>', unsafe_allow_html=True)
-            # Aplicamos color oscuro (#333) al texto para que sea visible
-            st.markdown('<div class="tarjeta-content" style="color: #333; padding-top: 10px;">', unsafe_allow_html=True)
+            st.markdown(f'<div class="tarjeta-header" style="background-color:#374151; background-image:none; color:#ffffff; border-bottom: 2px solid #6b7280;">{nombre_grupo}</div>', unsafe_allow_html=True)
+            st.markdown('<div class="tarjeta-content" style="color: #ffffff; padding-top: 10px;">', unsafe_allow_html=True)
+            st.markdown('<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:12px; border-bottom:1px solid #3b82f6; padding-bottom:5px; margin-bottom:10px; color:#cbd5e1;"><span style="flex:3;">TEAM</span><span style="flex:1; text-align:center;">P</span><span style="flex:1; text-align:center;">GF</span><span style="flex:1; text-align:center;">GC</span><span style="flex:1; text-align:center;">+/-</span></div>', unsafe_allow_html=True)
             
-            # Cabecera de la tabla
-            st.markdown('<div style="display:flex; justify-content:space-between; font-weight:bold; font-size:12px; border-bottom:1px solid #ccc; padding-bottom:5px; margin-bottom:10px;"><span style="flex:3;">TEAM</span><span style="flex:1; text-align:center;">P</span><span style="flex:1; text-align:center;">GF</span><span style="flex:1; text-align:center;">GC</span><span style="flex:1; text-align:center;">+/-</span></div>', unsafe_allow_html=True)
-            
-            # Filas de equipos
             for eq in equipos_grupo:
-                st.markdown(f'<div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:10px; border-bottom: 1px solid #eee; padding-bottom: 5px;"><span style="flex:3; font-weight:bold; color:#1a237e;">🛡️ {eq["nombre"]}</span><span style="flex:1; text-align:center; font-weight:bold;">{eq["p"]}</span><span style="flex:1; text-align:center;">{eq["gf"]}</span><span style="flex:1; text-align:center;">{eq["gc"]}</span><span style="flex:1; text-align:center;">{eq["dg"]}</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:10px; border-bottom: 1px solid #1e40af; padding-bottom: 8px;"><span style="flex:3; font-weight:bold; color:#ffffff;">🛡️ {eq["nombre"]}</span><span style="flex:1; text-align:center; font-weight:bold; color:#ffffff;">{eq["p"]}</span><span style="flex:1; text-align:center; color:#e2e8f0;">{eq["gf"]}</span><span style="flex:1; text-align:center; color:#e2e8f0;">{eq["gc"]}</span><span style="flex:1; text-align:center; color:#e2e8f0;">{eq["dg"]}</span></div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
         st.write("")
 
     if "Ajedrez" not in st.session_state.filtro_deporte and "Ciclismo" not in st.session_state.filtro_deporte:
-        # Grupo A
         dibujar_grupo("Grupo A", [
             {"nombre": "Cutchil", "p": 3, "gf": 3, "gc": 0, "dg": "+3"},
             {"nombre": "Profesionales", "p": 3, "gf": 2, "gc": 1, "dg": "+1"},
-            {"nombre": "Estudiantes", "p": 1, "gf": 1, "gc": 1, "dg": "0"},
+            {"nombre": "Estudiantes", "p": 1, "gf": 1, "gc": 2, "dg": "-1"},
             {"nombre": "Atlético", "p": 0, "gf": 0, "gc": 3, "dg": "-3"}
         ])
-        
-        # Grupo B
         dibujar_grupo("Grupo B", [
             {"nombre": "Dangers", "p": 3, "gf": 4, "gc": 1, "dg": "+3"},
             {"nombre": "San Sebastián", "p": 3, "gf": 2, "gc": 0, "dg": "+2"},
             {"nombre": "Güel", "p": 0, "gf": 1, "gc": 2, "dg": "-1"},
             {"nombre": "Sigsales", "p": 0, "gf": 0, "gc": 4, "dg": "-4"}
         ])
-        
-        # Grupo C
         dibujar_grupo("Grupo C", [
             {"nombre": "Sígsig", "p": 3, "gf": 1, "gc": 0, "dg": "+1"},
             {"nombre": "Llactazhungo", "p": 1, "gf": 2, "gc": 2, "dg": "0"},
