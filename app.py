@@ -2,16 +2,49 @@ import streamlit as st
 import time
 import base64
 
-# Configuración de la página
+# Configuración principal
 st.set_page_config(page_title="Jornadas Deportivas", layout="wide")
 
-# --- 1. INYECCIÓN DE CSS (COLORES Y ANIMACIÓN ROTATORIA) ---
+# --- 1. CSS: COLORES, ANIMACIÓN Y SCROLL HORIZONTAL ---
 css = """
 <style>
-/* Animación para que el logo gire */
+/* Colores principales */
+h1, h2, h3 { color: #1a237e; } /* Azul oscuro */
+h4 { color: #d32f2f; margin-bottom: 5px; } /* Rojo */
+hr { border-top: 3px solid #d32f2f; }
+
+/* Botones principales y de detalles */
+div[data-testid="stButton"] > button {
+    background-color: #1a237e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.3s;
+    width: 100%;
+}
+div[data-testid="stButton"] > button:hover {
+    background-color: #d32f2f;
+    color: white;
+}
+
+/* --- TRUCO PARA EL SCROLL HORIZONTAL DE EQUIPOS --- */
+/* Obliga a las columnas a no saltar de línea y crea una barra de desplazamiento */
+div[data-testid="column"] {
+    flex: 0 0 auto !important;
+    width: 110px !important; /* Ancho de cada logo/botón */
+    text-align: center;
+}
+div[data-testid="stHorizontalBlock"] {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 15px;
+}
+
+/* Animación del splash screen */
 .spin-logo {
     animation: spin 1.5s linear infinite;
-    width: 150px; /* Tamaño del logo cargando */
+    width: 150px;
     display: block;
     margin: 0 auto;
 }
@@ -20,52 +53,28 @@ css = """
     100% { transform: rotate(360deg); }
 }
 
-/* Tema de la página basado en el escudo */
-h1, h2, h3 {
-    color: #1a237e; /* Azul oscuro del escudo */
-}
-h4 {
-    color: #d32f2f; /* Rojo vivo del escudo */
-}
-hr {
-    border-top: 3px solid #d32f2f; 
-}
-
-/* Estilo de los botones */
-div[data-testid="stButton"] > button {
-    background-color: #1a237e;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-div[data-testid="stButton"] > button:hover {
-    background-color: #d32f2f;
-    color: white;
-    border: none;
+/* Ajuste de las tarjetas */
+div[data-testid="stVerticalBlock"] > div[style*="border"] {
+    border-left: 5px solid #1a237e !important;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
 }
 </style>
 """
-# Aplicamos el CSS a la página
 st.markdown(css, unsafe_allow_html=True)
 
-
-# --- 2. PANTALLA DE CARGA (SPLASH SCREEN ROTATORIO) ---
+# --- 2. PANTALLA DE CARGA (SPLASH SCREEN) ---
 pantalla_carga = st.empty()
 
 with pantalla_carga.container():
-    # Leemos la imagen local y la convertimos para que el HTML la pueda animar
     try:
-        with open("logo.png", "rb") as f:
+        with open("prueba_logo.png", "rb") as f:
             img_data = base64.b64encode(f.read()).decode()
         img_html = f'<img src="data:image/png;base64,{img_data}" class="spin-logo">'
     except FileNotFoundError:
-        # Si aún no guardas la imagen en la carpeta, sale esto por defecto para que no de error
         img_html = '<div class="spin-logo" style="font-size:50px; text-align:center;">⚽</div>'
-        st.warning("⚠️ Recuerda guardar tu imagen transparente como 'logo.png' en esta carpeta.")
+        st.warning("⚠️ Guarda tu imagen como 'prueba_logo.png' en esta carpeta.")
 
-    # Estructura HTML para centrar el logo girando
     html_loader = f"""
     <div style="display: flex; justify-content: center; align-items: center; height: 60vh; flex-direction: column;">
         {img_html}
@@ -74,45 +83,85 @@ with pantalla_carga.container():
     """
     st.markdown(html_loader, unsafe_allow_html=True)
 
-# Simulamos que la página está buscando los partidos (3 segundos)
-time.sleep(3)
-
-# Borramos la pantalla de carga para dar paso a la información
+time.sleep(2.5)
 pantalla_carga.empty()
 
 
-# --- 3. PÁGINA PRINCIPAL (VISTA DE HOY) ---
+# --- 3. PÁGINA PRINCIPAL ---
 st.title("🏆 Jornadas Deportivas - Hoy")
 
+# --- SCROLL HORIZONTAL DE EQUIPOS ---
 st.markdown("### Equipos Participantes")
-cols_logos = st.columns(6)
-equipos = ["Los Profesionales", "Liga Central", "Atlético", "Halcones", "Titanes", "Real"]
-for i, col in enumerate(cols_logos):
-    col.button(equipos[i])
+equipos = [
+    "San Sebastián", "Dangers", "Estudiantes", "Llactazhungo", 
+    "Profesionales", "Sauces", "Siete Estrellas", "Sigsales", 
+    "Sígsig", "Cutchil", "Güel", "San Bartolomé"
+]
+
+# Creamos tantas columnas como equipos (el CSS las hará deslizables hacia el lado)
+cols_equipos = st.columns(len(equipos))
+
+for i, col in enumerate(cols_equipos):
+    with col:
+        # Mostramos el logo de prueba en cada equipo
+        try:
+            st.image("prueba_logo.png", use_container_width=True)
+        except:
+            st.write("🖼️") # Placeholder si no encuentra la imagen
+        # Botón con el nombre corto debajo del logo
+        st.button(equipos[i], key=f"btn_eq_{i}")
 
 st.divider()
 
-st.subheader("📅 Calendario del Día")
+# --- TARJETAS DE PARTIDOS (ESTILO GOOGLE / JJOO) ---
+st.subheader("📅 Partidos Programados")
 
-# Tarjeta de categoría (Fútbol Sub 12)
+# 1. Fulbito - Sub 12
 with st.container(border=True):
-    st.markdown("#### ⚽ Fútbol - Sub 12")
-    st.write("🕒 **14:00** | Los Profesionales  vs.  Liga Central")
-    st.write("🕒 **16:00** | Real  vs.  Titanes")
-    st.button("Ver todo el calendario y posiciones", key="btn_sub12")
+    st.markdown("#### ⚽ Fulbito - Sub 12")
+    st.write("🕒 **14:00** | Profesionales vs. San Sebastián")
+    st.write("🕒 **15:00** | Dangers vs. Cutchil")
+    st.button("Ver más detalles", key="detalles_f_sub12")
 
 st.write("")
 
-# Tarjeta de categoría (Fútbol Barrio)
+# 2. Fulbito - Sub 15
 with st.container(border=True):
-    st.markdown("#### ⚽ Fútbol - Categoría Barrio")
-    st.write("🕒 **18:00** | Atlético  vs.  Halcones")
-    st.button("Ver todo el calendario y posiciones", key="btn_barrio")
+    st.markdown("#### ⚽ Fulbito - Sub 15")
+    st.write("🕒 **16:00** | Estudiantes vs. Güel")
+    st.write("🕒 **17:00** | Llactazhungo vs. Sauces")
+    st.button("Ver más detalles", key="detalles_f_sub15")
 
 st.write("")
 
-# Tarjeta de categoría (Baloncesto Femenino)
+# 3. Indor - Masculino
 with st.container(border=True):
-    st.markdown("#### 🏀 Baloncesto - Femenino")
-    st.write("🕒 **19:30** | Los Profesionales  vs.  Titanes")
-    st.button("Ver todo el calendario y posiciones", key="btn_basket_fem")
+    st.markdown("#### 🥅 Indor - Masculino")
+    st.write("🕒 **18:00** | Sigsales vs. San Bartolomé")
+    st.write("🕒 **19:00** | Siete Estrellas vs. Sígsig")
+    st.button("Ver más detalles", key="detalles_i_masc")
+
+st.write("")
+
+# 4. Indor - Femenino
+with st.container(border=True):
+    st.markdown("#### 🥅 Indor - Femenino")
+    st.write("🕒 **20:00** | Profesionales vs. Estudiantes")
+    st.button("Ver más detalles", key="detalles_i_fem")
+
+st.write("")
+
+# 5. Ecuavoley - Masculino
+with st.container(border=True):
+    st.markdown("#### 🏐 Ecuavoley - Masculino")
+    st.write("🕒 **18:30** | Dangers vs. Llactazhungo")
+    st.write("🕒 **19:30** | Cutchil vs. Sauces")
+    st.button("Ver más detalles", key="detalles_e_masc")
+
+st.write("")
+
+# 6. Ecuavoley - Femenino
+with st.container(border=True):
+    st.markdown("#### 🏐 Ecuavoley - Femenino")
+    st.write("🕒 **20:30** | San Sebastián vs. San Bartolomé")
+    st.button("Ver más detalles", key="detalles_e_fem")
