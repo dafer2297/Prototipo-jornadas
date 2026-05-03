@@ -36,9 +36,21 @@ h1, h2, h3 { font-weight: 800 !important; }
     letter-spacing: 1px;
 }
 
+/* --- TÍTULO VISTA DETALLADA --- */
+.titulo-detalle {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 /* --- CARRUSEL DE EQUIPOS --- */
 .carrusel-container {
-    background-color: #1e293b; /* Gris azulado oscuro */
+    background-color: #1e293b; 
     border-radius: 12px;
     border: 1px solid #334155;
     padding: 15px 5px 5px 5px;
@@ -86,7 +98,6 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] > button p {
     padding-bottom: 5px;
 }
 
-/* El cuerpo de la tarjeta: Azul royal con borde celeste */
 div[data-testid="stVerticalBlock"] > div[style*="border"] {
     background-color: #1e3a8a !important; 
     border: 2px solid #38bdf8 !important; 
@@ -96,7 +107,6 @@ div[data-testid="stVerticalBlock"] > div[style*="border"] {
     overflow: hidden;
 }
 
-/* Cabecera ROJA para "PARTIDOS" o nombre del deporte */
 .tarjeta-header {
     background: linear-gradient(180deg, #b91c1c 0%, #991b1b 100%);
     color: #ffffff;
@@ -122,7 +132,6 @@ div[data-testid="stVerticalBlock"] > div[style*="border"] {
 .partido-info { flex: 1; color: #f8fafc; }
 .partido-marcador { font-weight: bold; color: #bae6fd; margin-left: 10px; text-align: right;}
 
-/* Botón Rojo (Ver más detalles) con relieve */
 .btn-rojo button {
     background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%) !important;
     border: 1px solid #f87171 !important;
@@ -136,14 +145,21 @@ div[data-testid="stVerticalBlock"] > div[style*="border"] {
 }
 .btn-rojo button:hover { background: #7f1d1d !important; }
 
-/* Flecha de volver */
+/* --- FLECHA DE VOLVER CORREGIDA (MÁS GRANDE Y VISIBLE) --- */
 .btn-back button {
     background-color: transparent !important;
-    color: #ffffff !important;
-    border: none !important;
-    font-size: 20px !important;
-    padding: 0 15px !important;
-    font-weight: 900 !important;
+    color: #38bdf8 !important;
+    border: 2px solid #38bdf8 !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    padding: 5px 20px !important;
+    font-weight: bold !important;
+    margin-bottom: 15px !important;
+    transition: 0.3s;
+}
+.btn-back button:hover {
+    background-color: #38bdf8 !important;
+    color: #0f172a !important;
 }
 
 /* Modal oscuro puro */
@@ -153,18 +169,18 @@ div[data-testid="stDialog"] { padding-top: 20px !important; background-color: #0
 """
 st.markdown(css, unsafe_allow_html=True)
 
-# --- BASE DE DATOS CORREGIDA (Sin categorías extra) ---
-equipos = ["San Sebastián", "Dangers", "Estudiantes", "Llactazhungo", "Profesionales", "Sauces", "Siete Estrellas", "Sigsales", "Sígsig", "Cutchil", "Güel", "San Bartolomé"]
+# --- BASE DE DATOS CORREGIDA (Solo 12 equipos oficiales) ---
+equipos = ["San Sebastián", "Dangers", "Estudiantes", "Llactazhungo", "Profesionales", "Sauces", "Siete Estrellas", "Sigsales", "Sígsig Sporting", "Cutchil", "Güel", "San Bartolomé"]
 
 datos_torneo = {
     "Lunes (Ayer)": [
         {"deporte": "⚽ Fulbito - Sub 12", "partidos": [
             {"hora": "14:00", "eq1": "Profesionales", "eq2": "San Sebastián", "marcador": "2 - 1"},
             {"hora": "15:00", "eq1": "Dangers", "eq2": "Cutchil", "marcador": "0 - 3"},
-            {"hora": "16:00", "eq1": "Estudiantes", "eq2": "Atlético", "marcador": "1 - 1"}
+            {"hora": "16:00", "eq1": "Estudiantes", "eq2": "San Bartolomé", "marcador": "1 - 1"}
         ]},
         {"deporte": "🏐 Ecuavoley - Masculino", "partidos": [
-            {"hora": "18:00", "eq1": "Sigsales", "eq2": "Sígsig", "marcador": "2 - 0"},
+            {"hora": "18:00", "eq1": "Sigsales", "eq2": "Sígsig Sporting", "marcador": "2 - 0"},
             {"hora": "19:00", "eq1": "Güel", "eq2": "San Bartolomé", "marcador": "1 - 2"},
             {"hora": "20:00", "eq1": "Sauces", "eq2": "Llactazhungo", "marcador": "2 - 1"}
         ]}
@@ -172,7 +188,7 @@ datos_torneo = {
     "Martes (Hoy)": [
         {"deporte": "⚽ Fulbito - Sub 12", "partidos": [
             {"hora": "14:00", "eq1": "Llactazhungo", "eq2": "San Bartolomé", "marcador": "Pendiente"},
-            {"hora": "15:00", "eq1": "Sígsig", "eq2": "Siete Estrellas", "marcador": "Pendiente"}
+            {"hora": "15:00", "eq1": "Sígsig Sporting", "eq2": "Siete Estrellas", "marcador": "Pendiente"}
         ]},
         {"deporte": "🥅 Indor - Masculino", "partidos": [
             {"hora": "14:00", "eq1": "Profesionales", "eq2": "Dangers", "marcador": "5 - 2"},
@@ -188,7 +204,7 @@ datos_torneo = {
             {"hora": "10:00", "eq1": "Profesionales", "eq2": "Sigsales", "marcador": "Pendiente"}
         ]},
         {"deporte": "🏀 Básquetbol - Femenino", "partidos": [
-            {"hora": "18:00", "eq1": "San Bartolomé", "eq2": "Sígsig", "marcador": "Pendiente"},
+            {"hora": "18:00", "eq1": "San Bartolomé", "eq2": "Sígsig Sporting", "marcador": "Pendiente"},
             {"hora": "19:00", "eq1": "Sigsales", "eq2": "Sauces", "marcador": "Pendiente"}
         ]},
         {"deporte": "🚴 Ciclismo (Ruta Libre)", "partidos": [
@@ -251,47 +267,32 @@ def modal_calendario(deporte_seleccionado):
     if not hay_datos:
         st.info("No hay más partidos programados.")
 
-# --- DIBUJAR CABECERA ---
-def dibujar_cabecera():
-    if st.session_state.pantalla_actual == "HOME":
-        st.markdown('<div class="header-top-bar"><div class="header-title">TORNEO GENERAL - CALENDARIO</div></div>', unsafe_allow_html=True)
-        
-        if st.session_state.filtro_equipo:
-            col_back, _ = st.columns([1, 5])
-            with col_back:
-                st.markdown('<div class="btn-back">', unsafe_allow_html=True)
-                if st.button("← Ver todo"):
-                    st.session_state.filtro_equipo = None
-                    st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown(f'<div style="text-align:center; color:#38bdf8; font-weight:bold; margin-bottom: 20px;">SIGUIENDO A: {st.session_state.filtro_equipo.upper()}</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="carrusel-container">', unsafe_allow_html=True)
-            cols = st.columns(len(equipos))
-            for i, col in enumerate(cols):
-                with col:
-                    try:
-                        st.image("prueba_logo.png", width=50)
-                    except:
-                        st.write("🛡️")
-                    if st.button(equipos[i], key=f"btn_{equipos[i]}"):
-                        st.session_state.filtro_equipo = equipos[i]
-                        st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-    else:
-        col_back, col_title = st.columns([1, 8])
-        with col_back:
-            st.markdown('<div class="header-top-bar" style="justify-content:flex-start; padding-left:10px;"><div class="btn-back">', unsafe_allow_html=True)
-            if st.button("←", key="back_from_detail"):
-                st.session_state.pantalla_actual = "HOME"
-                st.rerun()
-            st.markdown('</div></div>', unsafe_allow_html=True)
-        with col_title:
-            st.markdown(f'<div class="header-top-bar" style="justify-content:flex-start;"><div class="header-title">{st.session_state.filtro_deporte}</div></div>', unsafe_allow_html=True)
-
 # --- PANTALLA PRINCIPAL (HOME) ---
 if st.session_state.pantalla_actual == "HOME":
-    dibujar_cabecera()
+    st.markdown('<div class="header-top-bar"><div class="header-title">TORNEO GENERAL - CALENDARIO</div></div>', unsafe_allow_html=True)
+    
+    if st.session_state.filtro_equipo:
+        col_back, _ = st.columns([1, 5])
+        with col_back:
+            st.markdown('<div class="btn-back">', unsafe_allow_html=True)
+            if st.button("⬅ Ver todo el torneo"):
+                st.session_state.filtro_equipo = None
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="text-align:center; color:#38bdf8; font-size: 18px; font-weight:bold; margin-bottom: 20px;">SIGUIENDO A: {st.session_state.filtro_equipo.upper()}</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="carrusel-container">', unsafe_allow_html=True)
+        cols = st.columns(len(equipos))
+        for i, col in enumerate(cols):
+            with col:
+                try:
+                    st.image("prueba_logo.png", width=50)
+                except:
+                    st.write("🛡️")
+                if st.button(equipos[i], key=f"btn_{equipos[i]}"):
+                    st.session_state.filtro_equipo = equipos[i]
+                    st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
     
     for dia, deportes in datos_torneo.items():
         deportes_a_mostrar = []
@@ -329,16 +330,28 @@ if st.session_state.pantalla_actual == "HOME":
 
 # --- PANTALLA 2: VISTA DETALLADA ---
 elif st.session_state.pantalla_actual == "DETALLE":
-    dibujar_cabecera()
-    st.write("")
+    # 1. Franja roja arriba
+    st.markdown('<div class="header-top-bar"><div class="header-title">TORNEO GENERAL</div></div>', unsafe_allow_html=True)
     
+    # 2. Botón de volver GRANDE y visible
+    st.markdown('<div class="btn-back">', unsafe_allow_html=True)
+    if st.button("⬅ Volver", key="back_from_detail"):
+        st.session_state.pantalla_actual = "HOME"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # 3. Título claro del deporte
+    st.markdown(f'<div class="titulo-detalle">⚽ {st.session_state.filtro_deporte}</div>', unsafe_allow_html=True)
+    
+    # Tarjeta Compacta (PARTIDOS)
     with st.container(border=True):
         st.markdown(f'<div class="tarjeta-header">PARTIDOS</div>', unsafe_allow_html=True)
         st.markdown('<div class="tarjeta-content">', unsafe_allow_html=True)
         
+        # Datos corregidos sin Atlético
         st.markdown('<div class="partido-fila"><div class="partido-info">14:00 | Profesionales - San Sebastián</div><div class="partido-marcador">2 - 1</div></div>', unsafe_allow_html=True)
         st.markdown('<div class="partido-fila"><div class="partido-info">15:00 | Dangers - Cutchil</div><div class="partido-marcador">0 - 3</div></div>', unsafe_allow_html=True)
-        st.markdown('<div class="partido-fila"><div class="partido-info" style="color:#94a3b8;">16:00 | Estudiantes vs. Atlético</div><div class="partido-marcador" style="color:#94a3b8;">Pendiente</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="partido-fila"><div class="partido-info" style="color:#94a3b8;">16:00 | Estudiantes vs. San Bartolomé</div><div class="partido-marcador" style="color:#94a3b8;">Pendiente</div></div>', unsafe_allow_html=True)
         
         st.markdown('<div class="btn-rojo">', unsafe_allow_html=True)
         if st.button("Ver más partidos", key="abrir_modal"):
@@ -347,6 +360,7 @@ elif st.session_state.pantalla_actual == "DETALLE":
 
     st.write("")
     
+    # --- TABLAS DE POSICIONES (Grupos con los 12 equipos exactos) ---
     def dibujar_grupo(nombre_grupo, equipos_grupo):
         with st.container(border=True):
             st.markdown(f'<div class="tarjeta-header" style="background-color:#374151; background-image:none; color:#ffffff; border-bottom: 2px solid #6b7280;">{nombre_grupo}</div>', unsafe_allow_html=True)
@@ -363,7 +377,7 @@ elif st.session_state.pantalla_actual == "DETALLE":
             {"nombre": "Cutchil", "p": 3, "gf": 3, "gc": 0, "dg": "+3"},
             {"nombre": "Profesionales", "p": 3, "gf": 2, "gc": 1, "dg": "+1"},
             {"nombre": "Estudiantes", "p": 1, "gf": 1, "gc": 2, "dg": "-1"},
-            {"nombre": "Atlético", "p": 0, "gf": 0, "gc": 3, "dg": "-3"}
+            {"nombre": "San Bartolomé", "p": 0, "gf": 0, "gc": 3, "dg": "-3"}
         ])
         dibujar_grupo("Grupo B", [
             {"nombre": "Dangers", "p": 3, "gf": 4, "gc": 1, "dg": "+3"},
@@ -372,8 +386,8 @@ elif st.session_state.pantalla_actual == "DETALLE":
             {"nombre": "Sigsales", "p": 0, "gf": 0, "gc": 4, "dg": "-4"}
         ])
         dibujar_grupo("Grupo C", [
-            {"nombre": "Sígsig", "p": 3, "gf": 1, "gc": 0, "dg": "+1"},
+            {"nombre": "Sígsig Sporting", "p": 3, "gf": 1, "gc": 0, "dg": "+1"},
             {"nombre": "Llactazhungo", "p": 1, "gf": 2, "gc": 2, "dg": "0"},
             {"nombre": "Sauces", "p": 1, "gf": 2, "gc": 2, "dg": "0"},
-            {"nombre": "San Bartolomé", "p": 0, "gf": 0, "gc": 1, "dg": "-1"}
+            {"nombre": "Siete Estrellas", "p": 0, "gf": 0, "gc": 1, "dg": "-1"}
         ])
