@@ -5,7 +5,7 @@ import base64
 # Configuración principal
 st.set_page_config(page_title="Jornadas Deportivas", layout="wide")
 
-# --- 1. CSS: CORRECCIÓN PARA CELULARES Y CENTRADO ---
+# --- 1. CSS: CORRECCIÓN DE ESPACIOS PARA CELULAR ---
 css = """
 <style>
 /* Colores principales */
@@ -27,39 +27,43 @@ div[data-testid="stButton"] > button {
     font-weight: bold;
     transition: 0.3s;
     width: 100%;
-    padding: 8px 2px;
+    padding: 6px 2px;
 }
 div[data-testid="stButton"] > button p {
     font-size: 13px !important; 
-    text-align: center !important; /* Centra el texto obligatoriamente */
+    text-align: center !important; 
     word-break: normal !important; 
     white-space: normal !important;
-    margin: 0 auto; /* Asegura el centrado */
+    line-height: 1.1 !important; /* Ajusta la altura de las líneas del texto */
+    margin: 0 auto; 
 }
 div[data-testid="stButton"] > button:hover {
     background-color: #d32f2f;
     color: white;
 }
 
-/* --- TRUCO DEFINITIVO PARA EL CARRUSEL EN CELULARES --- */
+/* --- TRUCO PARA QUITAR EL ESPACIO EN CELULARES --- */
 [data-testid="stHorizontalBlock"] {
-    flex-direction: row !important; /* Prohíbe que se apilen hacia abajo en celulares */
+    flex-direction: row !important; 
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     padding-bottom: 15px;
     -webkit-overflow-scrolling: touch; 
-    align-items: flex-end; /* Alinea los botones abajo por si un nombre tiene 2 líneas */
+    align-items: flex-end; 
+    gap: 8px !important; /* REDUCE DRAMÁTICAMENTE EL ESPACIO ENTRE LOGOS */
 }
 
-/* Ancho fijo para cada equipo */
+/* Ancho fijo para cada equipo, sin relleno extra */
 [data-testid="column"] {
-    min-width: 105px !important; /* Ajuste perfecto para que quepa el logo y el texto */
-    width: 105px !important;
-    max-width: 105px !important;
-    flex: 0 0 105px !important;
+    min-width: 95px !important; /* Un poco más angosto para que se junten */
+    width: 95px !important;
+    max-width: 95px !important;
+    flex: 0 0 95px !important;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra todo dentro de la columna */
+    align-items: center; 
+    padding-left: 2px !important; /* Quita el espacio a la izquierda */
+    padding-right: 2px !important; /* Quita el espacio a la derecha */
 }
 
 /* Centrar la imagen en la columna */
@@ -130,7 +134,7 @@ cols_equipos = st.columns(len(equipos))
 
 for i, col in enumerate(cols_equipos):
     with col:
-        # AQUI ESTÁ LA CLAVE: width=75 evita que se estire al 100% en el celular
+        # El logo se mantiene fijo en 75px para no estirarse
         try:
             st.image("prueba_logo.png", width=75) 
         except:
