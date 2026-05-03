@@ -5,7 +5,7 @@ import base64
 # Configuración principal
 st.set_page_config(page_title="Jornadas Deportivas", layout="wide")
 
-# --- 1. CSS: CORRECCIÓN DE ESPACIOS PARA CELULAR ---
+# --- 1. CSS: CARRUSEL UNIFICADO PARA TODOS LOS DISPOSITIVOS ---
 css = """
 <style>
 /* Colores principales */
@@ -13,64 +13,64 @@ h1, h2, h3 { color: #1a237e; }
 h4 { color: #d32f2f; margin-bottom: 5px; } 
 hr { border-top: 3px solid #d32f2f; }
 
-/* --- CONTENEDOR DEL BOTÓN Y TEXTO CENTRADO --- */
-div[data-testid="stButton"] {
+/* --- CARRUSEL MANUAL (IGNORA LAS COLUMNAS DE STREAMLIT) --- */
+.carrusel-equipos {
     display: flex;
-    justify-content: center;
-    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 10px; /* ESTE ES EL ESPACIO FIJO ENTRE LOGOS PARA TODAS LAS PANTALLAS */
+    padding-bottom: 15px;
+    -webkit-overflow-scrolling: touch; /* Scroll suave en móviles */
+    align-items: flex-end; /* Alinea por abajo por si hay nombres largos */
 }
-div[data-testid="stButton"] > button {
+
+/* Tarjeta individual de cada equipo en el carrusel */
+.equipo-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px; /* Ancho fijo de la tarjeta */
+    width: 80px;
+}
+
+/* El logo dentro del carrusel */
+.equipo-logo {
+    width: 70px; /* Tamaño del escudo */
+    height: auto;
+    margin-bottom: 5px;
+}
+
+/* El botón debajo del logo */
+.equipo-card .stButton > button {
     background-color: #1a237e;
     color: white;
     border: none;
     border-radius: 8px;
     font-weight: bold;
-    transition: 0.3s;
     width: 100%;
     padding: 6px 2px;
 }
-div[data-testid="stButton"] > button p {
-    font-size: 13px !important; 
+.equipo-card .stButton > button:hover {
+    background-color: #d32f2f;
+}
+.equipo-card .stButton > button p {
+    font-size: 12px !important; 
     text-align: center !important; 
     word-break: normal !important; 
     white-space: normal !important;
-    line-height: 1.1 !important; /* Ajusta la altura de las líneas del texto */
+    line-height: 1.1 !important; 
     margin: 0 auto; 
 }
-div[data-testid="stButton"] > button:hover {
-    background-color: #d32f2f;
+
+/* Botones de las tarjetas de partidos (mantienen su tamaño normal) */
+div[data-testid="stVerticalBlock"] .stButton > button {
+    background-color: #1a237e;
     color: white;
+    border-radius: 8px;
+    transition: 0.3s;
 }
-
-/* --- TRUCO PARA QUITAR EL ESPACIO EN CELULARES --- */
-[data-testid="stHorizontalBlock"] {
-    flex-direction: row !important; 
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    padding-bottom: 15px;
-    -webkit-overflow-scrolling: touch; 
-    align-items: flex-end; 
-    gap: 8px !important; /* REDUCE DRAMÁTICAMENTE EL ESPACIO ENTRE LOGOS */
-}
-
-/* Ancho fijo para cada equipo, sin relleno extra */
-[data-testid="column"] {
-    min-width: 95px !important; /* Un poco más angosto para que se junten */
-    width: 95px !important;
-    max-width: 95px !important;
-    flex: 0 0 95px !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    padding-left: 2px !important; /* Quita el espacio a la izquierda */
-    padding-right: 2px !important; /* Quita el espacio a la derecha */
-}
-
-/* Centrar la imagen en la columna */
-[data-testid="stImage"] {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 5px;
+div[data-testid="stVerticalBlock"] .stButton > button:hover {
+    background-color: #d32f2f;
 }
 
 /* Animación del splash screen */
@@ -85,7 +85,7 @@ div[data-testid="stButton"] > button:hover {
     100% { transform: rotate(360deg); }
 }
 
-/* Ajuste de las tarjetas */
+/* Ajuste de las tarjetas de partidos */
 div[data-testid="stVerticalBlock"] > div[style*="border"] {
     border-left: 5px solid #1a237e !important;
     border-radius: 10px;
@@ -121,7 +121,7 @@ pantalla_carga.empty()
 # --- 3. PÁGINA PRINCIPAL ---
 st.title("🏆 Jornadas Deportivas - Hoy")
 
-# --- SCROLL HORIZONTAL DE EQUIPOS ---
+# --- SCROLL HORIZONTAL DE EQUIPOS (NUEVO MÉTODO) ---
 st.markdown("### Equipos Participantes")
 
 equipos = [
@@ -130,17 +130,33 @@ equipos = [
     "Sígsig Sporting", "Cutchil", "Güel", "San Bartolomé"
 ]
 
+# Convertimos el logo de prueba a base64 para poder meterlo en nuestro carrusel HTML
+try:
+    with open("prueba_logo.png", "rb") as f:
+        prueba_logo_data = base64.b64encode(f.read()).decode()
+    img_src = f"data:image/png;base64,{prueba_logo_data}"
+except:
+    img_src = "" # Si no encuentra la imagen, quedará en blanco
+
+# Abrimos el contenedor del carrusel
+st.markdown('<div class="carrusel-equipos">', unsafe_allow_html=True)
+
+# Creamos las columnas dentro del carrusel una por una
 cols_equipos = st.columns(len(equipos))
 
 for i, col in enumerate(cols_equipos):
     with col:
-        # El logo se mantiene fijo en 75px para no estirarse
-        try:
-            st.image("prueba_logo.png", width=75) 
-        except:
-            st.write("🖼️")
-            
+        # Metemos todo en una tarjeta "equipo-card" para que el CSS la controle
+        st.markdown(f'''
+            <div class="equipo-card">
+                <img src="{img_src}" class="equipo-logo" alt="logo">
+            </div>
+        ''', unsafe_allow_html=True)
+        # El botón de Streamlit sigue funcionando normal para los clics
         st.button(equipos[i], key=f"btn_eq_{i}")
+
+# Cerramos el contenedor del carrusel
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 
