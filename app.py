@@ -22,17 +22,25 @@ div[data-testid="stButton"] > button {
     font-weight: bold;
     transition: 0.3s;
     width: 100%;
+    padding: 5px; /* Menos relleno para dar espacio al texto */
 }
+
+/* Evitar que las palabras se rompan feo y ajustar tamaño */
+div[data-testid="stButton"] > button p {
+    font-size: 14px; 
+    word-break: keep-all; 
+    white-space: normal;
+}
+
 div[data-testid="stButton"] > button:hover {
     background-color: #d32f2f;
     color: white;
 }
 
 /* --- TRUCO PARA EL SCROLL HORIZONTAL DE EQUIPOS --- */
-/* Obliga a las columnas a no saltar de línea y crea una barra de desplazamiento */
 div[data-testid="column"] {
     flex: 0 0 auto !important;
-    width: 110px !important; /* Ancho de cada logo/botón */
+    width: 145px !important; /* AMPLIADO de 110px a 145px para nombres largos */
     text-align: center;
 }
 div[data-testid="stHorizontalBlock"] {
@@ -63,17 +71,18 @@ div[data-testid="stVerticalBlock"] > div[style*="border"] {
 """
 st.markdown(css, unsafe_allow_html=True)
 
-# --- 2. PANTALLA DE CARGA (SPLASH SCREEN) ---
+# --- 2. PANTALLA DE CARGA (SPLASH SCREEN CORREGIDA) ---
 pantalla_carga = st.empty()
 
 with pantalla_carga.container():
     try:
-        with open("prueba_logo.png", "rb") as f:
+        # AQUÍ USAMOS EL LOGO PRINCIPAL A COLOR PARA LA CARGA
+        with open("logo.png", "rb") as f:
             img_data = base64.b64encode(f.read()).decode()
         img_html = f'<img src="data:image/png;base64,{img_data}" class="spin-logo">'
     except FileNotFoundError:
         img_html = '<div class="spin-logo" style="font-size:50px; text-align:center;">⚽</div>'
-        st.warning("⚠️ Guarda tu imagen como 'prueba_logo.png' en esta carpeta.")
+        st.warning("⚠️ Asegúrate de tener el archivo 'logo.png' en esta carpeta.")
 
     html_loader = f"""
     <div style="display: flex; justify-content: center; align-items: center; height: 60vh; flex-direction: column;">
@@ -98,22 +107,20 @@ equipos = [
     "Sígsig", "Cutchil", "Güel", "San Bartolomé"
 ]
 
-# Creamos tantas columnas como equipos (el CSS las hará deslizables hacia el lado)
 cols_equipos = st.columns(len(equipos))
 
 for i, col in enumerate(cols_equipos):
     with col:
-        # Mostramos el logo de prueba en cada equipo
+        # AQUÍ USAMOS EL LOGO DE PRUEBA EN BLANCO PARA LOS EQUIPOS
         try:
             st.image("prueba_logo.png", use_container_width=True)
         except:
-            st.write("🖼️") # Placeholder si no encuentra la imagen
-        # Botón con el nombre corto debajo del logo
+            st.write("🖼️")
         st.button(equipos[i], key=f"btn_eq_{i}")
 
 st.divider()
 
-# --- TARJETAS DE PARTIDOS (ESTILO GOOGLE / JJOO) ---
+# --- TARJETAS DE PARTIDOS ---
 st.subheader("📅 Partidos Programados")
 
 # 1. Fulbito - Sub 12
