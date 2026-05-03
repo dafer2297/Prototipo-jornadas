@@ -5,15 +5,20 @@ import base64
 # Configuración principal
 st.set_page_config(page_title="Jornadas Deportivas", layout="wide")
 
-# --- 1. CSS: COLORES, ANIMACIÓN Y SCROLL HORIZONTAL FUERTE ---
+# --- 1. CSS: CORRECCIÓN PARA CELULARES Y CENTRADO ---
 css = """
 <style>
 /* Colores principales */
-h1, h2, h3 { color: #1a237e; } /* Azul oscuro */
-h4 { color: #d32f2f; margin-bottom: 5px; } /* Rojo */
+h1, h2, h3 { color: #1a237e; } 
+h4 { color: #d32f2f; margin-bottom: 5px; } 
 hr { border-top: 3px solid #d32f2f; }
 
-/* Botones principales y de detalles */
+/* --- CONTENEDOR DEL BOTÓN Y TEXTO CENTRADO --- */
+div[data-testid="stButton"] {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
 div[data-testid="stButton"] > button {
     background-color: #1a237e;
     color: white;
@@ -22,37 +27,46 @@ div[data-testid="stButton"] > button {
     font-weight: bold;
     transition: 0.3s;
     width: 100%;
-    height: auto; /* Permite que el botón se adapte al texto */
-    padding: 10px 5px; 
+    padding: 8px 2px;
 }
-
-/* Ajuste de texto para los botones */
 div[data-testid="stButton"] > button p {
-    font-size: 15px !important; 
-    word-break: normal !important; /* Prohíbe romper las palabras por la mitad */
+    font-size: 13px !important; 
+    text-align: center !important; /* Centra el texto obligatoriamente */
+    word-break: normal !important; 
     white-space: normal !important;
+    margin: 0 auto; /* Asegura el centrado */
 }
-
 div[data-testid="stButton"] > button:hover {
     background-color: #d32f2f;
     color: white;
 }
 
-/* --- TRUCO DEFINITIVO PARA EL SCROLL HORIZONTAL --- */
-/* Forzamos a que el contenedor NO aplaste los elementos y muestre el scroll */
+/* --- TRUCO DEFINITIVO PARA EL CARRUSEL EN CELULARES --- */
 [data-testid="stHorizontalBlock"] {
+    flex-direction: row !important; /* Prohíbe que se apilen hacia abajo en celulares */
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     padding-bottom: 15px;
-    -webkit-overflow-scrolling: touch; /* Scroll suave para iPad y celulares */
+    -webkit-overflow-scrolling: touch; 
+    align-items: flex-end; /* Alinea los botones abajo por si un nombre tiene 2 líneas */
 }
 
-/* Obligamos a cada columna a tener un ancho mínimo estricto */
+/* Ancho fijo para cada equipo */
 [data-testid="column"] {
-    min-width: 140px !important; 
-    width: 140px !important;
-    flex: 0 0 140px !important; /* Prohíbe que Streamlit encoja la columna */
-    text-align: center;
+    min-width: 105px !important; /* Ajuste perfecto para que quepa el logo y el texto */
+    width: 105px !important;
+    max-width: 105px !important;
+    flex: 0 0 105px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra todo dentro de la columna */
+}
+
+/* Centrar la imagen en la columna */
+[data-testid="stImage"] {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
 }
 
 /* Animación del splash screen */
@@ -82,13 +96,11 @@ pantalla_carga = st.empty()
 
 with pantalla_carga.container():
     try:
-        # Usamos el logo principal a color para la carga
         with open("logo.png", "rb") as f:
             img_data = base64.b64encode(f.read()).decode()
         img_html = f'<img src="data:image/png;base64,{img_data}" class="spin-logo">'
     except FileNotFoundError:
         img_html = '<div class="spin-logo" style="font-size:50px; text-align:center;">⚽</div>'
-        st.warning("⚠️ Asegúrate de tener el archivo 'logo.png' en esta carpeta.")
 
     html_loader = f"""
     <div style="display: flex; justify-content: center; align-items: center; height: 60vh; flex-direction: column;">
@@ -108,7 +120,6 @@ st.title("🏆 Jornadas Deportivas - Hoy")
 # --- SCROLL HORIZONTAL DE EQUIPOS ---
 st.markdown("### Equipos Participantes")
 
-# Lista corregida con "Sígsig Sporting"
 equipos = [
     "San Sebastián", "Dangers", "Estudiantes", "Llactazhungo", 
     "Profesionales", "Sauces", "Siete Estrellas", "Sigsales", 
@@ -119,11 +130,12 @@ cols_equipos = st.columns(len(equipos))
 
 for i, col in enumerate(cols_equipos):
     with col:
-        # Usamos el logo de prueba en blanco para los equipos
+        # AQUI ESTÁ LA CLAVE: width=75 evita que se estire al 100% en el celular
         try:
-            st.image("prueba_logo.png", use_container_width=True)
+            st.image("prueba_logo.png", width=75) 
         except:
             st.write("🖼️")
+            
         st.button(equipos[i], key=f"btn_eq_{i}")
 
 st.divider()
@@ -131,7 +143,6 @@ st.divider()
 # --- TARJETAS DE PARTIDOS ---
 st.subheader("📅 Partidos Programados")
 
-# 1. Fulbito - Sub 12
 with st.container(border=True):
     st.markdown("#### ⚽ Fulbito - Sub 12")
     st.write("🕒 **14:00** | Profesionales vs. San Sebastián")
@@ -140,7 +151,6 @@ with st.container(border=True):
 
 st.write("")
 
-# 2. Fulbito - Sub 15
 with st.container(border=True):
     st.markdown("#### ⚽ Fulbito - Sub 15")
     st.write("🕒 **16:00** | Estudiantes vs. Güel")
@@ -149,7 +159,6 @@ with st.container(border=True):
 
 st.write("")
 
-# 3. Indor - Masculino
 with st.container(border=True):
     st.markdown("#### 🥅 Indor - Masculino")
     st.write("🕒 **18:00** | Sigsales vs. San Bartolomé")
@@ -158,7 +167,6 @@ with st.container(border=True):
 
 st.write("")
 
-# 4. Indor - Femenino
 with st.container(border=True):
     st.markdown("#### 🥅 Indor - Femenino")
     st.write("🕒 **20:00** | Profesionales vs. Estudiantes")
@@ -166,7 +174,6 @@ with st.container(border=True):
 
 st.write("")
 
-# 5. Ecuavoley - Masculino
 with st.container(border=True):
     st.markdown("#### 🏐 Ecuavoley - Masculino")
     st.write("🕒 **18:30** | Dangers vs. Llactazhungo")
@@ -175,7 +182,6 @@ with st.container(border=True):
 
 st.write("")
 
-# 6. Ecuavoley - Femenino
 with st.container(border=True):
     st.markdown("#### 🏐 Ecuavoley - Femenino")
     st.write("🕒 **20:30** | San Sebastián vs. San Bartolomé")
